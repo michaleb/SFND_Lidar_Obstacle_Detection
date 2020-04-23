@@ -31,7 +31,8 @@ struct KdTree
 		if(*node==NULL)
 			*node = new Node(point, id);
 		
-		// Places a new point correctly within the root
+		// Places a new point correctly within the tree 
+		// to the left or right of current node's mem address
 		else
 		{
 			//Calculate current dim
@@ -41,7 +42,7 @@ struct KdTree
 				insertHelper(&((*node)->left), depth+1, point, id);
 			
 			else
-				insertHelper(&((*node) -> right), depth+1, point, id);
+				insertHelper(&((*node)->right), depth+1, point, id);
 	
 		}
 	}
