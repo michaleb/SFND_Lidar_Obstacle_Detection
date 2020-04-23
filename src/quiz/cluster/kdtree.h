@@ -32,7 +32,7 @@ struct KdTree
 			*node = new Node(point, id);
 		
 		// Places a new point correctly within the tree 
-		// to the left or right of current node's mem address
+		// to the left or right of current node's memory address location
 		else
 		{
 			//Calculate current dim
