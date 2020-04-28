@@ -3,6 +3,7 @@
 #include "processPointClouds.h"
 
 
+
 //constructor:
 template<typename PointT>
 ProcessPointClouds<PointT>::ProcessPointClouds() {}
@@ -44,8 +45,8 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 
     std::vector<int> Idx;
     pcl::CropBox<PointT> carRoof(true);
-    carRoof.setMax(Eigen::Vector4f (3, 2, 1, 1));
-    carRoof.setMin(Eigen::Vector4f (-3, -2, -1, 1));
+    carRoof.setMax(Eigen::Vector4f (2, 2, 1, 1));
+    carRoof.setMin(Eigen::Vector4f (-2, -2, -1, 1));
     carRoof.setInputCloud(cloudRegion);
     carRoof.filter(Idx);
 
@@ -168,7 +169,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 		float a = (y2-y1)*(z3-z1)-(y3-y1)*(z2-z1);
 		float b = (x2-x1)*(z3-z1)-(x3-x1)*(z2-z1);
 		float c = (x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
-		float d = -1*(a*x1+b*y1+c*z1);
+		float d = -(a*x1+b*y1+c*z1);
 
 		for(int index = 0; index < cloud->points.size(); index++)
 		{
@@ -222,17 +223,87 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 
     // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
     // Creating the KdTree object for the search method of the extraction
-    typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
-    tree->setInputCloud (cloud);
+    //typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
+    //tree->setInputCloud (cloud);
 
-    std::vector<pcl::PointIndices> clusterIndices;
+    KdTree *tree = new KdTree;
+
+	// TODO: Fill out this function to return list of indices for each cluster
+
+	std::vector<float> point;
+    for (int i=0; i< cloud->points.size(); i++)
+    {
+        point = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
+        tree->insert(point,i);
+    }
+
+	std::vector<std::vector<int>> clusterIndices;
+    std::vector<bool> isProcessed(cloud->points.size(),false);
+
+	int count = 0;
+	while (count < cloud->points.size())
+	{
+		if (isProcessed[count])
+		{
+			count++;
+			continue;
+		}
+		std::vector<int> cluster;
+		findClusters(count, cloud, cluster, isProcessed, tree, clusterTolerance);
+		
+        if ((cluster.size() >= minSize) && (cluster.size() <= maxSize))
+		{   
+            clusterIndices.push_back(cluster);
+        }    
+			
+    }
+    
+    for (int i = 0; i< clusterIndices.size(); ++i)
+    {
+        typename pcl::PointCloud<PointT>::Ptr clusterCloud (new pcl::PointCloud<PointT>);
+        for (int it = 0; it < clusterIndices[i].size(); ++it)
+
+            clusterCloud->points.push_back(cloud->points[clusterIndices[i][it]]); 
+        clusterCloud->width = clusterCloud->points.size ();
+        clusterCloud->height = 1;
+        clusterCloud->is_dense = true;
+
+        clusters.push_back(clusterCloud);
+        
+    }
+    
+	auto endTime = std::chrono::steady_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    std::cout << "clustering took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters" << std::endl;
+	
+    return clusters;
+}
+
+template<typename PointT>
+void ProcessPointClouds<PointT>::findClusters(int Idx, typename pcl::PointCloud<PointT>::Ptr cloud, std::vector<int>& cluster, std::vector<bool>& isProcessed, KdTree* tree, float clusterTolerance)
+{
+	isProcessed[Idx] = true;
+	cluster.push_back(Idx);
+
+	std::vector<float> target = {cloud->points[Idx].x, cloud->points[Idx].y, cloud->points[Idx].z};
+    std::vector<int> inCluster = tree->search(target, clusterTolerance);
+        
+	for (int pointIdx : inCluster)
+	{
+		if (!isProcessed[pointIdx])
+			findClusters(pointIdx, cloud, cluster, isProcessed, tree, clusterTolerance);
+	}
+
+}
+
+    /*std::vector<pcl::PointIndices> clusterIndices;
     pcl::EuclideanClusterExtraction<PointT> ec;
     ec.setClusterTolerance (clusterTolerance); // 2cm (0.02)
     ec.setMinClusterSize (minSize);
     ec.setMaxClusterSize (maxSize);
     ec.setSearchMethod (tree);
     ec.setInputCloud (cloud);
-    ec.extract (clusterIndices);
+    ec.extract (clusterIndices); 
 
     for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it)
     {
@@ -254,7 +325,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     std::cout << "clustering took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters" << std::endl;
 
     return clusters;
-}
+}*/
 
 
 template<typename PointT>
