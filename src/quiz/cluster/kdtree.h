@@ -67,6 +67,8 @@ struct KdTree
 	{
 		if(node != NULL)
 		{
+			// If the 3 coordinates of target point are within the distance tolerance of node point
+			// then they are contained in the same cluster
 			if ( (abs(node->point[0] - target[0]) <= distanceTol) && (abs(node->point[1] - target[1]) <= distanceTol) && (abs(node->point[2] - target[2]) <= distanceTol))
 			{
 				ids.push_back(node->id);
