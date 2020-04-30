@@ -133,14 +133,10 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 	srand(time(NULL));
 	
 	// TODO: Fill in this function
-
 	// For max iterations 
-
 	// Randomly sample subset and fit line
-
 	// Measure distance between every point and fitted line
 	// If distance is smaller than threshold count it as inlier
-
 	// Return indicies of inliers from fitted line with most inliers
 	
 	while(maxIterations--)
@@ -181,7 +177,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 			float y4 = point.y;
 			float z4 = point.z;
 
-			//The L1 norm computes quicker and is used to calculate the distance
+			//The L1 norm compute is less intensive and is used to calculate the distance
             float dist = fabs(a*x4+b*y4+c*z4+d)/(fabs(a)+fabs(b)+fabs(c));
 
 			if (dist <= distanceThreshold) 
