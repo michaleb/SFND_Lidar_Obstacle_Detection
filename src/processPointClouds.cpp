@@ -179,7 +179,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 			float z4 = point.z;
 
 			//The L1 norm compute is less intensive and is used to calculate the distance
-            float dist = fabs(a*x4+b*y4+c*z4+d)/(fabs(a)+fabs(b)+fabs(c));
+            float dist = std::fabs(a*x4+b*y4+c*z4+d)/(std::fabs(a)+std::fabs(b)+std::fabs(c));
 
 			if (dist <= distanceThreshold) 
 				inPlane.insert(index);
