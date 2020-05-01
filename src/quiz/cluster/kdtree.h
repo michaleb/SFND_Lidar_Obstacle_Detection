@@ -2,6 +2,7 @@
 // Quiz on implementing kd tree
 
 #include "../../render/render.h"
+#include <cmath>
 
 
 // Structure to represent node of kd tree
@@ -69,7 +70,7 @@ struct KdTree
 		{
 			// If the 3 coordinates of target point are within the distance tolerance of node point
 			// then they are contained in the same cluster
-			if ( (abs(node->point[0] - target[0]) <= distanceTol) && (abs(node->point[1] - target[1]) <= distanceTol) && (abs(node->point[2] - target[2]) <= distanceTol))
+			if ( (std::abs(node->point[0] - target[0]) <= distanceTol) && (std::abs(node->point[1] - target[1]) <= distanceTol) && (std::abs(node->point[2] - target[2]) <= distanceTol))
 			{
 				ids.push_back(node->id);
 				//std::cout << distance << std::endl;
