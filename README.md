@@ -1,4 +1,4 @@
-# Sensor Fusion Self-Driving Car Course
+# Lidar Obstacle Detection - Self Driving car
 
 <img src="media/sfnd-lidar-obstacle-detector.gif" width="700" height="400" />
 
